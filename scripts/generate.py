@@ -15,11 +15,6 @@ from src.generate_sf import generate_shear_flow
 from src.utils import divide_grid
 
 
-def assemble_name(reynolds, schmidt, reso, init):
-    Nx, Nz = reso
-    return f"shear_flow_reynolds_{reynolds:.2e}_schmidt_{schmidt:.2e}_Nx_{Nx}_Nz_{Nz}_init_{init}".replace('.','_').replace('-','m').replace('+','p')
-
-
 def get_args():
     
     parser = argparse.ArgumentParser(description='')

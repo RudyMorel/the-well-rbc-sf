@@ -43,7 +43,7 @@ SF_GRID = {
 
 # References
 
-[1] "Scale Dependencies and Self-Similar Models with Wavelet Scattering Spectra" \
+[1] "TBD" \
 R.Ohana*, M.Mccabe*, L.Meyer, R.Morel et al. - TBD
 
 [2] "Dedalus: A flexible framework for numerical simulations with spectral methods" \
