@@ -26,8 +26,9 @@ def get_args():
     # script parameters
     parser.add_argument('--seed', type=int, help="Random seed")
     parser.add_argument('--regen', action="store_true")
-    parser.add_argument('--pde-name', type=str, default="shearflow2d", help="Whether rbc2d or shearflow2d")
-    parser.add_argument('--output-folder', type=str, default="shearflow2d_final", help="Suffix to save the file")
+    parser.add_argument('--pde-name', type=str, default="shearflow2d", help="Whether to generate rbc2d or shearflow2d")
+    # parser.add_argument('--output-folder', type=str, default="shearflow2d_final", help="Suffix to save the file")
+    parser.add_argument('--output-folder', type=str, default="shearflow2d_finer", help="Suffix to save the file")
 
     args = parser.parse_args()
 
@@ -53,10 +54,19 @@ if __name__ == "__main__":
     # divides each time step of the solver by a safety factor
     safety_factor = {
         "rbc2d": 32,
-        "shearflow2d": 4,
+        "shearflow2d": 4 *32,
     }[args.pde_name]
 
     # determine the batch of tasks to be executed by this worker
+    grid = [{
+        'resolution': (256, 512),
+        'reynolds': 5e5,
+        'schmidt': 5.0,
+        'width': 1.0,
+        'n_shear': 4,
+        'n_blobs': 2,
+        'init': 'default',
+    }]
     grid = divide_grid(grid, args.ntot, args.tid)
     if grid is None:
         exit()
@@ -68,6 +78,6 @@ if __name__ == "__main__":
 
     # generation
     for kwargs in grid:
-        generate(**kwargs, dpath=dpath, safety_factor=safety_factor, min_dt=5e-4)
+        generate(**kwargs, dpath=dpath, safety_factor=safety_factor, min_dt=5e-5)
 
     print()

@@ -34,7 +34,7 @@ def generate_shear_flow(
     dealias = 3/2
     stop_sim_time = 20
     timestepper = d3.RK222
-    max_timestep = 1e-2
+    max_timestep = 1e-2 / 10
     dtype = np.float64
 
     save_name = filename_sf.format(
