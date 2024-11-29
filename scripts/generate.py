@@ -4,12 +4,13 @@
 The big hdf5 files for each PDE-parameter are then assembled through the script `reformat.py`.
 """
 import argparse
+from itertools import product
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).parents[1]))
 from pathlib import Path
 
-from src.global_constants import *
+from src.global_constants import RBC_GRID, SF_GRID, OUTPUT_PATH
 from src.generate_rbc import generate_rayleigh_benard
 from src.generate_sf import generate_shear_flow
 from src.utils import divide_grid
@@ -24,9 +25,7 @@ def get_args():
     parser.add_argument('-tid', type=int, default=0, help="Task ID")
 
     # script parameters
-    parser.add_argument('--seed', type=int, help="Random seed")
-    parser.add_argument('--regen', action="store_true")
-    parser.add_argument('--pde-name', type=str, default="shearflow2d", help="Whether rbc2d or shearflow2d")
+    parser.add_argument('--pde-name', type=str, default="shearflow2d", help="Whether to generate rbc2d or shearflow2d")
     parser.add_argument('--output-folder', type=str, default="shearflow2d_final", help="Suffix to save the file")
 
     args = parser.parse_args()
@@ -44,9 +43,9 @@ if __name__ == "__main__":
 
     # assemble the grid of parameters to generate
     if args.pde_name == "rbc2d":
-        grid = [dict(zip(RBC_GRID.keys(), values)) for values in zip(*RBC_GRID.values())]
+        grid = [dict(zip(RBC_GRID.keys(), values)) for values in product(*RBC_GRID.values())]
     elif args.pde_name == "shearflow2d":
-        grid = [dict(zip(SF_GRID.keys(), values)) for values in zip(*SF_GRID.values())]
+        grid = [dict(zip(SF_GRID.keys(), values)) for values in product(*SF_GRID.values())]
     else:
         raise ValueError("pde_name must be either rbc2d or shearflow2d.")
 
@@ -68,6 +67,4 @@ if __name__ == "__main__":
 
     # generation
     for kwargs in grid:
-        generate(**kwargs, dpath=dpath, safety_factor=safety_factor, min_dt=5e-4)
-
-    print()
+        generate(**kwargs, dpath=dpath, safety_factor=safety_factor, min_dt=1e-8)

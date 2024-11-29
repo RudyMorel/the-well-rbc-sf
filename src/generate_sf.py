@@ -2,15 +2,14 @@ import logging
 logger = logging.getLogger(__name__)
 import numpy as np
 import dedalus.public as d3
-from mpi4py import MPI
+import h5py
 
 from src.global_constants import *
 
 
-def init_standard_shear(x, z, Lx, Nx, Nz, n_shear=2, n_blobs=2, width=1.0):
-    shear = np.zeros((Nx, Nz), dtype=np.float32)
-    velocity = np.zeros((Nx, Nz), dtype=np.float32)
-    # position of the shears: uniform in the z-direction
+def init_standard_shear(x, z, Lx, n_shear=2, n_blobs=2, width=1.0):
+    shear = np.zeros((x.shape[0], z.shape[1]), dtype=np.float32)
+    velocity = np.zeros((x.shape[0], z.shape[1]), dtype=np.float32)
     z_shear = np.linspace(-1, 1, n_shear, endpoint=False) + 1/n_shear
     for i, z1 in enumerate(z_shear):
         sign = 2 * (i%2) - 1
@@ -33,8 +32,9 @@ def generate_shear_flow(
     Nx, Nz = resolution
     dealias = 3/2
     stop_sim_time = 20
-    timestepper = d3.RK222
-    max_timestep = 1e-2
+    timestepper = d3.SBDF3
+    initial_dt = 1e-5
+    max_dt = 1.0  # fake max timestep
     dtype = np.float64
 
     save_name = filename_sf.format(
@@ -43,7 +43,7 @@ def generate_shear_flow(
 
     # Bases
     coords = d3.CartesianCoordinates('x', 'z')
-    dist = d3.Distributor(coords, dtype=dtype, comm=MPI.COMM_SELF)
+    dist = d3.Distributor(coords, dtype=dtype)
     xbasis = d3.RealFourier(coords['x'], size=Nx, bounds=(0, Lx), dealias=dealias)
     zbasis = d3.RealFourier(coords['z'], size=Nz, bounds=(-Lz/2, Lz/2), dealias=dealias)
 
@@ -71,7 +71,7 @@ def generate_shear_flow(
     solver.stop_sim_time = stop_sim_time
 
     # Initial conditions
-    shear, velocity = init_standard_shear(x, z, Lx, Nx, Nz, n_shear, n_blobs, width)
+    shear, velocity = init_standard_shear(x, z, Lx, n_shear, n_blobs, width)
     u['g'][0] += shear
     u['g'][1] += velocity
     
@@ -119,8 +119,8 @@ def generate_shear_flow(
 
     # CFL
     CFL = d3.CFL(
-        solver, initial_dt=max_timestep, cadence=10, safety=0.2/safety_factor, threshold=0.1,
-        max_change=1.5, min_change=0.5, max_dt=max_timestep, min_dt=min_dt,
+        solver, initial_dt=initial_dt, cadence=10, safety=0.2/safety_factor, threshold=0.1,
+        max_change=1.5, min_change=0.5, max_dt=max_dt, min_dt=min_dt,
     )
     CFL.add_velocity(u)
 
