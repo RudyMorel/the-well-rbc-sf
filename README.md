@@ -30,7 +30,7 @@ RBC_GRID = {
 }
 
 SF_GRID = {
-    'resolution': [(128, 256)],
+    'resolution': [(1024, 2048)],  # downsampled to (256, 512)
     'reynolds': [1e4, 5e4, 1e5, 5e5],
     'schmidt': [0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0],
     'width': [0.25, 0.5, 1.0, 2.0, 4.0],
@@ -43,8 +43,8 @@ SF_GRID = {
 
 # References
 
-[1] "TBD" \
-R.Ohana*, M.Mccabe*, L.Meyer, R.Morel et al. - TBD
+[1] "The Well: a Large-Scale Collection of Diverse Physics Simulations for Machine Learning"
+R.Ohana*, M.Mccabe*, L.Meyer, R.Morel et al. https://arxiv.org/abs/2412.00568
 
 [2] "Dedalus: A flexible framework for numerical simulations with spectral methods" \
 K.J.Burns et al. https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023068
